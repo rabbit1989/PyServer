@@ -21,9 +21,13 @@ class rpc_channel(object):
 				index = self.read_buff.find('#')
 				if index == -1:
 					break
-
-				data = self.read_buff[:index]
-				self.read_buff = self.read_buff[index+1:]
 				
+				data = self.read_buff[:index]
+				self.read_buff = self.read_buff[index+1:]	
+				func_name, args = self.coder.decode(data)
+				func = getattr(self, func_name, None)
+				
+				if func:
+					func(args)
 
 
