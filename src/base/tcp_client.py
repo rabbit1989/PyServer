@@ -11,6 +11,3 @@ class tcp_client(object):
 
 	def recv(self, size):
 		return self.conn.recv(size)
-
-	def get_data_size(self):
-		return len(self.conn.read_buff)

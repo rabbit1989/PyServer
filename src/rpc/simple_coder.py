@@ -15,6 +15,5 @@ class simple_coder(object):
 		data = data.strip(' ')
 		data_list = data.split(' ')
 		func_name = data_list[0]
-		args = tuple(data_list[1:])
-
+		args = tuple(map(lambda v: int(v), data_list[1:]))
 		return func_name, args
