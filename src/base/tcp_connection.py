@@ -4,29 +4,26 @@ import asyncore, socket
 
 class tcp_connection(asyncore.dispatcher):
 	buff_size = 4096
-	def __init__(self, sock = None, addr = None):
+	def __init__(self, sock = None):
 		'''
-			the __init__ method receives two kinds of parameter:
-			
-			#one is 'addr' which indicates (ip, host) pair, the method uses the pair to 
-			create a new socket
+			tcp_connection is a simple wrapper of asyncore.dispatcher_with_send, it holds a channel object passed
+			from upper level. Whenever it receives data, the data is processed by channel object
+		'''
+		if sock is None:
+			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-			#the other is a socket which is ready to use 
-		'''
 		asyncore.dispatcher.__init__(self, sock)
-		self.read_buff = ''
 		self.write_buff = ''
 
-		if addr:
-			self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.connect(addr)
-		else:
-			self.set_socket(sock)
+	def set_channel_obj(self, channel_obj):
+		self.channel_obj = channel_obj
 
-		print 'connection buffer size: %d' % self.buff_size
+	def get_channel_obj(self):	
+		return self.channel_obj	
 
 	def handle_read(self):	
-		self.read_buff += asyncore.dispatcher.recv(self, self.buff_size) 
+		data = asyncore.dispatcher.recv(self, self.buff_size) 
+		self.channel_obj.process_data(data)
 
 	def handle_write(self):
 		sent_data = self.write_buff[:self.buff_size]
@@ -35,8 +32,3 @@ class tcp_connection(asyncore.dispatcher):
 
 	def send(self, data):
 		self.write_buff += data
-
-	def recv(self, size):
-		recv_data = self.read_buff[:size]
-		self.read_buff = self.read_buff[size:]
-		return recv_data

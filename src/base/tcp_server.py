@@ -4,20 +4,17 @@ import tcp_connection
 import asyncore, socket
 
 class tcp_server(asyncore.dispatcher):
-	def __init__(self, ip, port, num_connection = 5):
+	def __init__(self, ip, port, con_handler):
 		asyncore.dispatcher.__init__(self)
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.bind((ip, port))
-		self.listen(num_connection)
-		self.conn_list = {}
+		self.listen(50)
+		self.con_handler = con_handler
 
-	def handle_read(self):
-		pass
-	def handle_write(self):
-		pass
 	def handle_accept(self):
-		conn, addr = self.accept()
-		self.conn_list[addr] = tcp_connection.tcp_connection(sock=conn)
+		sock, addr = self.accept()
+		conn = tcp_connection.tcp_connection(sock)
+		self.con_handler.handle_new_connection(conn)
 
 		
 		
